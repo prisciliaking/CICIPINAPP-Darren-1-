@@ -21,17 +21,22 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.cicipinapp.viewModels.HomeViewModel
 import com.example.cicipinapp.viewModels.RestaurantViewModel
+import com.example.cicipinapp.viewmodels.MenuViewModel
+import com.example.cicipinapp.views.AddMenuView
 import com.example.cicipinapp.views.AddRestaurantView
 //import com.example.cicipinapp.viewModels.RestaurantViewModel
 //import com.example.cicipinapp.views.AddRestaurantView
 import com.example.cicipinapp.views.LoginView
+import com.example.cicipinapp.views.MenuCardListView
 
 
 @Composable
 fun AppRouting(
     authenticationViewModel: AuthenticationViewModel = viewModel(factory = AuthenticationViewModel.Factory),
-    restaurantViewModel: RestaurantViewModel = viewModel(factory = RestaurantViewModel.Factory)
-) {
+    restaurantViewModel: RestaurantViewModel = viewModel(factory = RestaurantViewModel.Factory),
+    menuViewModel : MenuViewModel = viewModel (factory = MenuViewModel.Factory),
+
+    ) {
     val navController = rememberNavController() // Create a navigation controller
 
     // Daftar rute yang akan menampilkan BottomNavigationBar
@@ -76,7 +81,11 @@ fun AppRouting(
                 )
             }
             composable(Screen.Home.route) {
-                HomeView(navController, restaurantViewModel, context = LocalContext.current) // Pass the navController to HomeView
+                HomeView(
+                    navController,
+                    restaurantViewModel,
+                    context = LocalContext.current
+                ) // Pass the navController to HomeView
             }
             composable(Screen.Wishlist.route) {
                 WishlistView(navController) // Screen to navigate to
@@ -103,6 +112,22 @@ fun AppRouting(
                     navController,
                     context = LocalContext.current,
                     token = String()
+                )
+            }
+
+            composable(Screen.AddMenu.route) {
+                AddMenuView(
+                    menuViewModel = menuViewModel,
+                    onMenuSubmitted = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+
+            composable(Screen.AddMenuList.route) {
+                MenuCardListView(
+                    menuViewModel = menuViewModel,
+                    navController = navController
                 )
             }
         }
