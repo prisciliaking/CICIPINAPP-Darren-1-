@@ -1,7 +1,6 @@
 package com.example.cicipinapp.viewModels
 
 import android.util.Log
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -22,7 +21,6 @@ import com.example.cicipinapp.repositories.UserRepository
 import com.example.cicipinapp.uiStates.RestaurantDataStatusUIState
 import com.example.cicipinapp.uiStates.StringDataStatusUIState
 import com.google.gson.Gson
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -140,13 +138,15 @@ class RestaurantViewModel(
                     }
 
                     override fun onFailure(call: Call<GeneralResponseModel>, t: Throwable) {
-                        submissionStatus = StringDataStatusUIState.Failed(t.localizedMessage)
+                        submissionStatus = StringDataStatusUIState.Failed(t.localizedMessage ?: "An unknown error occurred")
                     }
+
 
                 })
             } catch (error: IOException) {
-                submissionStatus = StringDataStatusUIState.Failed(error.localizedMessage)
+                dataStatus = RestaurantDataStatusUIState.Failed(error.localizedMessage ?: "An unknown error occurred")
             }
+
         }
     }
 
@@ -155,9 +155,6 @@ class RestaurantViewModel(
 fun getAllRestaurants(token: String) {
     viewModelScope.launch {
         Log.d("token-home", "TOKEN AT HOME: ${token}")
-
-
-
         try {
             val call = restaurantRepository.getAllRestaurants(token)
             call.enqueue(object : Callback<GetAllRestaurant> {
@@ -177,12 +174,12 @@ fun getAllRestaurants(token: String) {
                 }
 
                 override fun onFailure(call: Call<GetAllRestaurant>, t: Throwable) {
-                    dataStatus = RestaurantDataStatusUIState.Failed(t.localizedMessage)
+                    dataStatus = RestaurantDataStatusUIState.Failed(t.localizedMessage ?: "An unknown error occurred")
                 }
 
             })
         } catch (error: IOException) {
-            dataStatus = RestaurantDataStatusUIState.Failed(error.localizedMessage)
+            dataStatus = RestaurantDataStatusUIState.Failed(error.localizedMessage ?: "An unknown error occurred")
         }
     }
 }

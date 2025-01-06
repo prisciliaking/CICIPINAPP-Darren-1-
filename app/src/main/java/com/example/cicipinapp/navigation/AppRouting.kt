@@ -19,15 +19,13 @@ import com.example.cicipinapp.views.SettingView
 import com.example.cicipinapp.views.WishlistView
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.example.cicipinapp.viewModels.HomeViewModel
 import com.example.cicipinapp.viewModels.RestaurantViewModel
-import com.example.cicipinapp.viewmodels.MenuViewModel
+import com.example.cicipinapp.viewModels.MenuViewModel
 import com.example.cicipinapp.views.AddMenuView
 import com.example.cicipinapp.views.AddRestaurantView
-//import com.example.cicipinapp.viewModels.RestaurantViewModel
-//import com.example.cicipinapp.views.AddRestaurantView
 import com.example.cicipinapp.views.LoginView
 import com.example.cicipinapp.views.MenuCardListView
+import com.example.cicipinapp.views.MenuDetail
 
 
 @Composable
@@ -61,7 +59,7 @@ fun AppRouting(
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = Screen.Login.route, // Set the starting screen
+            startDestination = Screen.AddMenuList.route, // Set the starting screen
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(Screen.Register.route) {
@@ -117,18 +115,26 @@ fun AppRouting(
 
             composable(Screen.AddMenu.route) {
                 AddMenuView(
-                    menuViewModel = menuViewModel,
-                    onMenuSubmitted = {
-                        navController.popBackStack()
-                    }
+                    menuViewModel,
+                    navController
                 )
             }
 
             composable(Screen.AddMenuList.route) {
                 MenuCardListView(
-                    menuViewModel = menuViewModel,
-                    navController = navController
+                    menuViewModel,
+                    navController
                 )
+            }
+
+            composable(Screen.MenuDetail.route) { backStackEntry ->
+                val menuId = backStackEntry.arguments?.getString("menuId")?.toInt() ?: 0
+                val token = /* Fetch the token from a secure source */
+                    MenuDetail(
+                        menuId = menuId,
+                        menuViewModel,
+                        navController = navController
+                    )
             }
         }
     }

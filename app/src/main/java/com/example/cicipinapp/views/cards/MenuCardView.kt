@@ -24,15 +24,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.cicipinapp.models.MenuModel
+import com.example.cicipinapp.navigation.Screen
 
 @Composable
-fun MenuCardView(menu: MenuModel) {
+fun MenuCardView(menu: MenuModel,navController: NavController) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp),
+            .padding(8.dp)
+            .clickable {
+                //handle to menuDetails refers by menuId
+            },
         shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
@@ -68,7 +73,8 @@ private fun MenuCardPreview() {
         name = "Delicious Pizza",
         image = "https://example.com/pizza.jpg",
         description = "Cheese-filled crust with fresh tomato sauce and basil.",
-        price = "12.99"
+        price = "12.99",
+        RestaurantsID = 2
     )
 
     // Pass mock data to MenuCardView

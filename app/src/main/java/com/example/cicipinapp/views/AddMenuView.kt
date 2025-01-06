@@ -19,18 +19,19 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import com.example.cicipinapp.viewModels.MenuViewModel
 import coil.compose.rememberAsyncImagePainter
-import com.example.cicipinapp.R
-import com.example.cicipinapp.viewmodels.MenuViewModel
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddMenuView(menuViewModel: MenuViewModel, onMenuSubmitted: () -> Unit) {
+fun AddMenuView(menuViewModel: MenuViewModel,
+                navController: NavHostController
+) {
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     var menuName by remember { mutableStateOf("") }
     var menuDescription by remember { mutableStateOf("") }
@@ -153,7 +154,6 @@ fun AddMenuView(menuViewModel: MenuViewModel, onMenuSubmitted: () -> Unit) {
                         price = menuPrice,
                         restaurantId = 1 // Replace with the actual restaurant ID
                     )
-                    onMenuSubmitted()
                 },
                 modifier = Modifier
                     .fillMaxWidth()
