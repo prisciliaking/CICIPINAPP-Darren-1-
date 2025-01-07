@@ -1,25 +1,37 @@
+// File: MenuViewModel.kt
 package com.example.cicipinapp.viewModels
 
+import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import androidx.navigation.NavHostController
 import com.example.cicipinapp.CicipInApp
+import com.example.cicipinapp.enums.PagesEnum
 import com.example.cicipinapp.models.*
+import com.example.cicipinapp.navigation.Screen
 import com.example.cicipinapp.repositories.MenuRepository
 import com.example.cicipinapp.repositories.RestaurantRepository
 import com.example.cicipinapp.uiStates.MenuDataStatusUIState
+import com.google.gson.Gson
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.io.IOException
 
 class MenuViewModel(
     private val menuRepository: MenuRepository,
-    private val restaurantRepository: RestaurantRepository,
-
+    private val restaurantRepository: RestaurantRepository
 ) : ViewModel() {
 
     private val _menuList = MutableLiveData<List<MenuModel>>()
@@ -40,6 +52,7 @@ class MenuViewModel(
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
+                // Access the Application to get the AppContainer
                 val application = this[APPLICATION_KEY] as CicipInApp
                 val menuRepository = application.container.menuRepository
                 val restaurantRepository = application.container.restaurantRepository
@@ -48,8 +61,76 @@ class MenuViewModel(
         }
     }
 
+    var menuName by mutableStateOf("")
+        private set
+
+    var menuDescription by mutableStateOf("")
+        private set
+
+    var menuPrice by mutableStateOf("")
+        private set
+
+    var RestaurantsID = MutableStateFlow(3)
+        private set
+
+    var imageUrl by mutableStateOf("")
+
     private val _menuDataStatus = MutableLiveData<MenuDataStatusUIState>()
     val menuDataStatus: LiveData<MenuDataStatusUIState> = _menuDataStatus
+
+    // Create a new menu
+    fun createMenu(
+        navController: NavHostController,
+        token: String,
+        menuName: String,
+        imageUrl: String,
+        menuDescription: String,
+        menuPrice: String,
+        RestaurantsID: Int
+    ) {
+        viewModelScope.launch {
+            Log.d("token-menu", "TOKEN: $token")
+            try {
+                val call = menuRepository.createMenu(
+                    token = token,
+                    name = menuName,
+                    image = imageUrl,
+                    description = menuDescription,
+                    price = menuPrice,
+                    restaurantId = RestaurantsID
+                )
+
+                call.enqueue(object : Callback<GeneralResponseModel> {
+                    override fun onResponse(
+                        call: Call<GeneralResponseModel>,
+                        response: Response<GeneralResponseModel>
+                    ) {
+                        if (response.isSuccessful) {
+                            Log.d("json", "JSON RESPONSE: ${response.body()!!.data}")
+
+                            navController.navigate(Screen.AddMenuList.route) {
+                                popUpTo(PagesEnum.MenuList.name) {
+                                    inclusive = true
+                                }
+                            }
+                        } else {
+                            val errorMessage = Gson().fromJson(
+                                response.errorBody()!!.charStream(),
+                                ErrorModel::class.java
+                            )
+                        }
+                    }
+
+                    override fun onFailure(call: Call<GeneralResponseModel>, t: Throwable) {
+                        Log.e("createMenu", "Error: ${t.localizedMessage}")
+                    }
+                })
+            } catch (error: IOException) {
+                Log.e("createMenu", "Error: ${error.localizedMessage}")
+            }
+        }
+    }
+
 
     fun fetchMenuByRestaurantId(restaurantId: Int) {
         _menuDataStatus.value = MenuDataStatusUIState.Loading
@@ -78,27 +159,43 @@ class MenuViewModel(
         })
     }
 
-    //get menu by id
-    fun fetchMenuById(id: Int) {
+    fun fetchMenuById(token: String, id: Int) {
+        Log.d("Menu View Model", "Fetch menu by id : $id")
+        // Set the UI state to Loading before making the network call
+        _menuDataStatus.value = MenuDataStatusUIState.Loading
 
-        menuRepository.getMenuById(id).enqueue(object : Callback<GetMenuResponse> {
+        menuRepository.getMenuById(token, id).enqueue(object : Callback<GetMenuResponse> {
+
             override fun onResponse(call: Call<GetMenuResponse>, response: Response<GetMenuResponse>) {
                 if (response.isSuccessful) {
-                    _menuDetail.value = response.body()?.data
+                    val menu = response.body()?.data
+                    if (menu != null) {
+                        // Wrap the single MenuModel in a list and update UI state to Success
+                        _menuDataStatus.value = MenuDataStatusUIState.Success(listOf(menu))
+                    } else {
+                        // If menu is null, update UI state to Empty
+                        _menuDataStatus.value = MenuDataStatusUIState.Empty
+                    }
                 } else {
-                    _errorMessage.value = "Failed to fetch menu: ${response.message()}"
+                    // If response is not successful, update UI state to Error with message
+                    _menuDataStatus.value = MenuDataStatusUIState.Error(
+                        "Failed to fetch menu: ${response.message()}"
+                    )
                 }
             }
 
             override fun onFailure(call: Call<GetMenuResponse>, t: Throwable) {
-                _errorMessage.value = "Error: ${t.message}"
+                // If the network call fails, update UI state to Error with throwable message
+                _menuDataStatus.value = MenuDataStatusUIState.Error(
+                    "Error: ${t.message}"
+                )
             }
         })
     }
 
     // Validate restaurant ID before creating a menu
-    fun validateRestaurant(token: String, restaurantId: Int, onSuccess: () -> Unit) {
-        restaurantRepository.getRestaurantById(token, restaurantId)
+    fun validateRestaurant(token: String, RestaurantsID: Int, onSuccess: () -> Unit) {
+        restaurantRepository.getRestaurantById(token, RestaurantsID)
             .enqueue(object : Callback<GetRestaurantResponse> {
                 override fun onResponse(
                     call: Call<GetRestaurantResponse>,
@@ -120,33 +217,5 @@ class MenuViewModel(
             })
     }
 
-    // Create a new menu
-    fun createMenu(
-        token: String,
-        name: String,
-        image: String,
-        description: String,
-        price: String,
-        restaurantId: Int
-    ) {
-        validateRestaurant(token, restaurantId) {
-            menuRepository.createMenu(token, name, image, description, price, restaurantId)
-                .enqueue(object : Callback<GeneralResponseModel> {
-                    override fun onResponse(
-                        call: Call<GeneralResponseModel>,
-                        response: Response<GeneralResponseModel>
-                    ) {
-                        if (response.isSuccessful) {
-                            _createMenuResponse.value = response.body()
-                        } else {
-                            _errorMessage.value = "Failed to create menu: ${response.message()}"
-                        }
-                    }
 
-                    override fun onFailure(call: Call<GeneralResponseModel>, t: Throwable) {
-                        _errorMessage.value = "Error: ${t.message}"
-                    }
-                })
-        }
-    }
 }

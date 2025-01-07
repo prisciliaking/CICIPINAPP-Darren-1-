@@ -16,7 +16,7 @@ interface MenuRepository {
         restaurantId: Int
     ): Call<GeneralResponseModel>
 
-    fun getMenuById(id: Int): Call<GetMenuResponse>
+    fun getMenuById(token: String, id: Int): Call<GetMenuResponse>
 
     // New method for fetching menus by restaurant ID
     fun getMenuByRestaurantId(restaurantId: Int): Call<GetAllMenu>
@@ -35,15 +35,15 @@ class NetworkMenuRepository(
         image: String,
         description: String,
         price: String,
-        restaurantId: Int
+        RestaurantsID: Int
     ): Call<GeneralResponseModel> {
         return menuAPIService.createMenu(
-            token, MenuRequest(name, image, description, price, restaurantId)
+            token, MenuRequest(name, image, description, price, RestaurantsID)
         )
     }
 
-    override fun getMenuById(id: Int): Call<GetMenuResponse> {
-        return menuAPIService.getMenuByID(id)
+    override fun getMenuById(token: String, id: Int): Call<GetMenuResponse> {
+        return menuAPIService.getMenuByID(token, id)
     }
 
     // New implementation for fetching menus by restaurant ID

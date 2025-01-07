@@ -1,6 +1,7 @@
 package com.example.cicipinapp.views
 
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,9 +18,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.cicipinapp.R
@@ -27,14 +28,17 @@ import com.example.cicipinapp.viewModels.MenuViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MenuDetail(menuId: Int, menuViewModel: MenuViewModel, navController: NavController) {
-    // Observing LiveData from the ViewModel
-    val menu by menuViewModel.menuDetail.observeAsState()
-    val errorMessage by menuViewModel.errorMessage.observeAsState()
+fun MenuDetail(menuId: Int, navController: NavController) {
+    val viewModel: MenuViewModel = viewModel(factory = MenuViewModel.Factory)
+    val menu by viewModel.menuDetail.observeAsState()
+    val errorMessage by viewModel.errorMessage.observeAsState()
 
     // Trigger fetching the menu when the composable is first displayed
+
     LaunchedEffect(menuId) {
-        menuViewModel.fetchMenuById(menuId)
+        Log.d("Menu Detail View", "menu id setelah masuk ke launched = $menuId")
+        viewModel.fetchMenuById(token = "", menuId)
+        Log.d("Menu Detail View", "Menu response setelah di fetch: $menu")
     }
 
     Scaffold(
@@ -79,8 +83,11 @@ fun MenuDetail(menuId: Int, menuViewModel: MenuViewModel, navController: NavCont
                 .background(Color.White)
                 .padding(innerPadding)
         ) {
+
             when {
+
                 menu != null -> {
+                    Log.d("Menu Detail View", "menu response = $menu")
                     // Display menu details
                     Image(
                         painter = rememberAsyncImagePainter(menu?.image),

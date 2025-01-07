@@ -18,8 +18,8 @@ interface MenuAPIService {
     @GET("/cicipin/menus")
     fun getAllMenu(): Call<GetAllMenu>
 
-    @GET("/cicipin/menus/id/{id}")
-    fun getMenuByID(@Header("X-API-TOKEN") @Path("id") id: Int): Call<GetMenuResponse>
+    @GET("/cicipin/menus/  {id}")
+    fun getMenuByID(@Header("X-API-TOKEN") token: String, @Path("id") id: Int): Call<GetMenuResponse>
 
     // New API endpoint for fetching menus by restaurant ID
     @GET("/cicipin/menus/restaurant/{restaurantId}")

@@ -1,6 +1,7 @@
 package com.example.cicipinapp.models
 
 data class MenuModel(
+    val id: Int,
     val name: String = "",
     val image: String = "",
     val description: String = "",

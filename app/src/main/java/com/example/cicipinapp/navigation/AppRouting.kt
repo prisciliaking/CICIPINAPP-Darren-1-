@@ -18,7 +18,9 @@ import com.example.cicipinapp.views.ReviewView
 import com.example.cicipinapp.views.SettingView
 import com.example.cicipinapp.views.WishlistView
 import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.NavType
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.navArgument
 import com.example.cicipinapp.viewModels.RestaurantViewModel
 import com.example.cicipinapp.viewModels.MenuViewModel
 import com.example.cicipinapp.views.AddMenuView
@@ -127,14 +129,12 @@ fun AppRouting(
                 )
             }
 
-            composable(Screen.MenuDetail.route) { backStackEntry ->
-                val menuId = backStackEntry.arguments?.getString("menuId")?.toInt() ?: 0
-                val token = /* Fetch the token from a secure source */
-                    MenuDetail(
-                        menuId = menuId,
-                        menuViewModel,
-                        navController = navController
-                    )
+            composable(
+                route = "menuDetail/{menuId}",
+                arguments = listOf(navArgument("menuId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val menuId = backStackEntry.arguments?.getString("menuId")?.toIntOrNull() ?: 0
+                MenuDetail(menuId = menuId, navController = navController)
             }
         }
     }

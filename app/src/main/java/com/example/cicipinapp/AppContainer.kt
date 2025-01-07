@@ -35,13 +35,15 @@ interface AppContainer {
     val restaurantRepository: RestaurantRepository
     val menuRepository: MenuRepository
     val wishlistRepository: WishlistRepository
+//    val menuRepository: MenuRepository by lazy { MenuRepository() }
+//    val restaurantRepository: RestaurantRepository by lazy { RestaurantRepository() }
 }
 
 class DefaultAppContainer(
     private val userDataStore: DataStore<Preferences>
 ) : AppContainer {
     // change it to your own local ip please
-    private val baseUrl = "http://192.168.107.47:3000"
+    private val baseUrl = "http://192.168.45.47:3000"
 
     // RETROFIT SERVICE
     // delay object creation until needed using lazy

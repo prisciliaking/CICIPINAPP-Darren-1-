@@ -36,7 +36,7 @@ fun MenuCardView(menu: MenuModel,navController: NavController) {
             .fillMaxWidth()
             .padding(8.dp)
             .clickable {
-                //handle to menuDetails refers by menuId
+                navController.navigate(Screen.MenuDetail.createRoute(menu.id.toString()))
             },
         shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White)
@@ -65,18 +65,3 @@ fun MenuCardView(menu: MenuModel,navController: NavController) {
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-private fun MenuCardPreview() {
-    // Mock MenuModel data
-    val mockMenu = MenuModel(
-        name = "Delicious Pizza",
-        image = "https://example.com/pizza.jpg",
-        description = "Cheese-filled crust with fresh tomato sauce and basil.",
-        price = "12.99",
-        RestaurantsID = 2
-    )
-
-    // Pass mock data to MenuCardView
-    MenuCardView(menu = mockMenu)
-}

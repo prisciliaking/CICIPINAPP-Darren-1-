@@ -1,5 +1,6 @@
 package com.example.cicipinapp.views
 
+import android.content.Context
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -7,7 +8,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
@@ -15,7 +15,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -29,21 +28,35 @@ import coil.compose.rememberAsyncImagePainter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddMenuView(menuViewModel: MenuViewModel,
-                navController: NavHostController
+fun AddMenuView(
+    menuViewModel: MenuViewModel,
+    navController: NavHostController
 ) {
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
-    var menuName by remember { mutableStateOf("") }
-    var menuDescription by remember { mutableStateOf("") }
-    var menuPrice by remember { mutableStateOf("") }
+    var menuName by remember { mutableStateOf(menuViewModel.menuName) }
+    var menuDescription by remember { mutableStateOf(menuViewModel.menuDescription) }
+    var menuPrice by remember { mutableStateOf(menuViewModel.menuPrice) }
+    val RestaurantsID by menuViewModel.RestaurantsID.collectAsState()
     val context = LocalContext.current
+
+    // Fetch token from SharedPreferences
+    val token = remember {
+        context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+            .getString("auth_token", "") ?: ""
+    }
 
     // Launcher for image picker
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
-        selectedImageUri = uri
+        if (uri != null) {
+            selectedImageUri = uri
+            menuViewModel.imageUrl = uri.toString() // Convert Uri to String
+        } else {
+            menuViewModel.imageUrl = "" // Handle null case
+        }
     }
+
 
     Scaffold(
         topBar = {
@@ -126,7 +139,6 @@ fun AddMenuView(menuViewModel: MenuViewModel,
                 )
             )
 
-            // Price
             Text("Menu Price")
             TextField(
                 value = menuPrice,
@@ -143,16 +155,10 @@ fun AddMenuView(menuViewModel: MenuViewModel,
 
             Button(
                 onClick = {
-                    // Submit the menu to the backend
-                    val token = "your_api_token" // Replace with your token
-                    val image = selectedImageUri?.toString() ?: ""
                     menuViewModel.createMenu(
-                        token = token,
-                        name = menuName,
-                        image = image,
-                        description = menuDescription,
-                        price = menuPrice,
-                        restaurantId = 1 // Replace with the actual restaurant ID
+                        navController,
+                        token = token, menuName,
+                        selectedImageUri.toString(), menuDescription, menuPrice, RestaurantsID
                     )
                 },
                 modifier = Modifier
@@ -168,9 +174,3 @@ fun AddMenuView(menuViewModel: MenuViewModel,
         }
     }
 }
-
-//@Preview(showBackground = true)
-//@Composable
-//private fun AddMenuPreview() {
-//    AddMenuView()
-//}
