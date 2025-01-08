@@ -39,10 +39,8 @@ import com.example.cicipinapp.uiStates.MenuDataStatusUIState
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun MenuCardListView(menuViewModel: MenuViewModel, navController: NavHostController) {
-    // Observing the state of the menu
     val menuDataStatus by menuViewModel.menuDataStatus.observeAsState(MenuDataStatusUIState.Loading)
 
-    // Memanggil fetchMenuList saat composable pertama kali diluncurkan
     LaunchedEffect(Unit) {
         menuViewModel.fetchMenuByRestaurantId(3)
     }
@@ -78,7 +76,7 @@ fun MenuCardListView(menuViewModel: MenuViewModel, navController: NavHostControl
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(10.dp)
+                    .padding(top = 10.dp)
             ) {
                 when (menuDataStatus) {
                     is MenuDataStatusUIState.Loading -> {
@@ -109,7 +107,9 @@ fun MenuCardListView(menuViewModel: MenuViewModel, navController: NavHostControl
                 }
                 Box {
                     Button(
-                        onClick = { navController.navigate(Screen.AddMenu.route) },
+                        onClick = {
+                            navController.navigate(Screen.AddMenu.route)
+                        },
                         colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
                         shape = RoundedCornerShape(24.dp), // Membuat tombol dengan sudut membulat
                         modifier = Modifier

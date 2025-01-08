@@ -28,13 +28,14 @@ import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.cicipinapp.models.MenuModel
 import com.example.cicipinapp.navigation.Screen
+import java.text.NumberFormat
+import java.util.Locale
 
 @Composable
-fun MenuCardView(menu: MenuModel,navController: NavController) {
+fun MenuCardView(menu: MenuModel, navController: NavController) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
             .clickable {
                 navController.navigate(Screen.MenuDetail.createRoute(menu.id.toString()))
             },
@@ -57,11 +58,27 @@ fun MenuCardView(menu: MenuModel,navController: NavController) {
             Spacer(modifier = Modifier.width(16.dp))
             // Menu Details
             Column {
-                Text(text = menu.name, fontWeight = FontWeight.Bold, fontSize = 20.sp)
-                Text(text = menu.description, maxLines = 2, color = Color.Gray)
-                Text(text = "Price: $${menu.price}", fontWeight = FontWeight.Medium)
+                Text(
+                    text = menu.name,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp
+                )
+                Text(
+                    text = menu.description,
+                    maxLines = 2,
+                    color = Color.Gray
+                )
+                Text(
+                    text = "Price: ${formatToRupiah(menu.price)}",
+                    fontWeight = FontWeight.Medium
+                )
             }
         }
     }
+}
+
+fun formatToRupiah(price: String): String {
+    val number = price.toDoubleOrNull() ?: 0.0
+    return NumberFormat.getCurrencyInstance(Locale("id", "ID")).format(number)
 }
 

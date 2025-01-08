@@ -63,16 +63,12 @@ class MenuViewModel(
 
     var menuName by mutableStateOf("")
         private set
-
     var menuDescription by mutableStateOf("")
         private set
-
     var menuPrice by mutableStateOf("")
         private set
-
     var RestaurantsID = MutableStateFlow(3)
         private set
-
     var imageUrl by mutableStateOf("")
 
     private val _menuDataStatus = MutableLiveData<MenuDataStatusUIState>()
@@ -97,7 +93,7 @@ class MenuViewModel(
                     image = imageUrl,
                     description = menuDescription,
                     price = menuPrice,
-                    restaurantId = RestaurantsID
+                    restaurantsID  = RestaurantsID
                 )
 
                 call.enqueue(object : Callback<GeneralResponseModel> {
@@ -131,8 +127,7 @@ class MenuViewModel(
         }
     }
 
-
-    fun fetchMenuByRestaurantId(restaurantId: Int) {
+    fun     fetchMenuByRestaurantId(restaurantId: Int) {
         _menuDataStatus.value = MenuDataStatusUIState.Loading
 
         menuRepository.getMenuByRestaurantId(restaurantId).enqueue(object : Callback<GetAllMenu> {
@@ -191,30 +186,6 @@ class MenuViewModel(
                 )
             }
         })
-    }
-
-    // Validate restaurant ID before creating a menu
-    fun validateRestaurant(token: String, RestaurantsID: Int, onSuccess: () -> Unit) {
-        restaurantRepository.getRestaurantById(token, RestaurantsID)
-            .enqueue(object : Callback<GetRestaurantResponse> {
-                override fun onResponse(
-                    call: Call<GetRestaurantResponse>,
-                    response: Response<GetRestaurantResponse>
-                ) {
-                    if (response.isSuccessful) {
-                        _restaurantValidation.value = true
-                        onSuccess()
-                    } else {
-                        _restaurantValidation.value = false
-                        _errorMessage.value = "Invalid Restaurant ID: ${response.message()}"
-                    }
-                }
-
-                override fun onFailure(call: Call<GetRestaurantResponse>, t: Throwable) {
-                    _restaurantValidation.value = false
-                    _errorMessage.value = "Error validating restaurant: ${t.message}"
-                }
-            })
     }
 
 
