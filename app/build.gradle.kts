@@ -59,14 +59,16 @@ dependencies {
     implementation(libs.androidx.activity.compose)
 
     // Jetpack Compose dependencies
-    implementation(libs.androidx.compose.bom.v20230900)
+    implementation(libs.androidx.compose.bom)
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation ("androidx.navigation:navigation-compose:2.7.2") // Versi terbaru Jetpack Navigation
     implementation ("androidx.compose.material3:material3:1.1.1")
-    implementation(libs.androidx.espresso.core)   // Untuk Material3 jika belum ditambahkan
+    implementation(libs.androidx.espresso.core)
+    implementation(libs.androidx.datastore.core.android)
+    implementation(libs.androidx.datastore.preferences.core.jvm)   // Untuk Material3 jika belum ditambahkan
 
     // Testing libraries
     testImplementation(libs.junit)
