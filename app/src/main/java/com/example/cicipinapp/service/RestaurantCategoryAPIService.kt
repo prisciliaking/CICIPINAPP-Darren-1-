@@ -2,25 +2,30 @@ package com.example.cicipinapp.service
 
 import com.example.cicipinapp.models.CreateRestaurantCategoryRequest
 import com.example.cicipinapp.models.RestaurantCategoryModel
-import com.example.cicipinapp.models.RestaurantCategoryResponse
+import com.example.cicipinapp.models.UpdateRestaurantCategoryRequest
 import retrofit2.Response
-import retrofit2.http.*
+import retrofit2.http.Body
+import retrofit2.http.DELETE
+import retrofit2.http.GET
+import retrofit2.http.POST
+import retrofit2.http.PUT
+import retrofit2.http.Path
 
 interface RestaurantCategoryAPIService {
 
-    // Endpoint untuk membuat kategori restoran
-    @POST("/cicipin/restaurant-categories")
-    suspend fun createRestaurantCategory(@Body request: CreateRestaurantCategoryRequest): Response<RestaurantCategoryResponse>
+    @POST("/cicipin/restaurantCategories")
+    suspend fun createRestaurantCategory(@Body request: CreateRestaurantCategoryRequest): Response<RestaurantCategoryModel>
 
-    // Endpoint untuk mendapatkan semua kategori restoran
-    @GET("/cicipin/restaurant-categories")
-    suspend fun getRestaurantCategories(): Response<List<RestaurantCategoryModel>>
+    @PUT("/cicipin/restaurantCategories/{id}")
+    suspend fun updateRestaurantCategory(
+        @Path("id") id: Int,
+        @Body request: UpdateRestaurantCategoryRequest
+    ): Response<RestaurantCategoryModel>
 
-    // Endpoint untuk memperbarui kategori restoran
-    @PUT("/cicipin/restaurant-categories/{id}")
-    suspend fun updateRestaurantCategory(@Path("id") id: Int, @Body request: CreateRestaurantCategoryRequest): Response<RestaurantCategoryResponse>
-
-    // Endpoint untuk menghapus kategori restoran
-    @DELETE("/cicipin/restaurant-categories/{id}")
+    @DELETE("/cicipin/restaurantCategories/{id}")
     suspend fun deleteRestaurantCategory(@Path("id") id: Int): Response<Unit>
+
+    @GET("/cicipin/restaurantCategories")
+    suspend fun getRestaurantCategories(): Response<List<RestaurantCategoryModel>>
 }
+
