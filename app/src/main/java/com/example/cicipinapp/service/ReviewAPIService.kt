@@ -1,25 +1,26 @@
 package com.example.cicipinapp.service
 
 import com.example.cicipinapp.models.CreateReviewRequest
-import com.example.cicipinapp.models.DeleteReviewRequest
-import com.example.cicipinapp.models.UpdateReviewRequest
-import com.example.cicipinapp.navigation.Screen
-import retrofit2.Call
+import com.example.cicipinapp.models.ReviewModel
+import com.example.cicipinapp.models.ReviewResponse
+import retrofit2.Response
 import retrofit2.http.*
 
 interface ReviewAPIService {
-    @GET("/reviews")
-    fun getAllReviews(): Call<List<Screen.Review>>
 
-    @GET("/reviews/{id}")
-    fun getReviewById(@Path("id") id: Int): Call<Screen.Review>
+    // Endpoint untuk membuat review
+    @POST("/cicipin/reviews")
+    suspend fun createReview(@Body request: CreateReviewRequest): Response<ReviewResponse>
 
-    @POST("/reviews")
-    fun createReview(@Body newReview: CreateReviewRequest): Call<String>
+    // Endpoint untuk mendapatkan reviews berdasarkan restaurant ID
+    @GET("/cicipin/restaurants/{restaurantId}/reviews")
+    suspend fun getReviewsForRestaurant(@Path("restaurantId") restaurantId: Int): Response<List<ReviewModel>>
 
-    @PUT("/reviews")
-    fun updateReview(@Body updatedReview: UpdateReviewRequest): Call<Screen.Review>
+    // Endpoint untuk update review
+    @PUT("/cicipin/reviews/{id}")
+    suspend fun updateReview(@Path("id") id: Int, @Body request: CreateReviewRequest): Response<ReviewResponse>
 
-    @DELETE("/reviews")
-    fun deleteReview(@Body deleteRequest: DeleteReviewRequest): Call<String>
+    // Endpoint untuk menghapus review
+    @DELETE("/cicipin/reviews/{id}")
+    suspend fun deleteReview(@Path("id") id: Int): Response<Unit>
 }

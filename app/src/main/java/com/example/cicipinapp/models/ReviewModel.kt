@@ -17,14 +17,10 @@ data class CreateReviewRequest(
     val RestaurantsID: Int
 )
 
-data class UpdateReviewRequest(
+data class ReviewResponse(
     val id: Int,
     val review: String,
     val rating: Float,
     val description: String,
     val RestaurantsID: Int
-)
-
-data class DeleteReviewRequest(
-    val id: Int
 )

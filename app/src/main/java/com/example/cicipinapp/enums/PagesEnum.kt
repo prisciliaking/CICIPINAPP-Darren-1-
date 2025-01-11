@@ -6,5 +6,6 @@ enum class PagesEnum(){
     Home,
     AddRestaurant,
     ShowMap,
-    RestaurantDetail
+    RestaurantDetail,
+    MenuList
 }

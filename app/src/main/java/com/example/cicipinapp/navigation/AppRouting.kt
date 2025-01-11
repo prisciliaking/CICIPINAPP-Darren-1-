@@ -18,20 +18,25 @@ import com.example.cicipinapp.views.ReviewView
 import com.example.cicipinapp.views.SettingView
 import com.example.cicipinapp.views.WishlistView
 import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.NavType
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.example.cicipinapp.viewModels.HomeViewModel
+import androidx.navigation.navArgument
 import com.example.cicipinapp.viewModels.RestaurantViewModel
+import com.example.cicipinapp.viewModels.MenuViewModel
+import com.example.cicipinapp.views.AddMenuView
 import com.example.cicipinapp.views.AddRestaurantView
-//import com.example.cicipinapp.viewModels.RestaurantViewModel
-//import com.example.cicipinapp.views.AddRestaurantView
 import com.example.cicipinapp.views.LoginView
+import com.example.cicipinapp.views.MenuCardListView
+import com.example.cicipinapp.views.MenuDetail
 
 
 @Composable
 fun AppRouting(
     authenticationViewModel: AuthenticationViewModel = viewModel(factory = AuthenticationViewModel.Factory),
-    restaurantViewModel: RestaurantViewModel = viewModel(factory = RestaurantViewModel.Factory)
-) {
+    restaurantViewModel: RestaurantViewModel = viewModel(factory = RestaurantViewModel.Factory),
+    menuViewModel : MenuViewModel = viewModel (factory = MenuViewModel.Factory),
+
+    ) {
     val navController = rememberNavController() // Create a navigation controller
 
     // Daftar rute yang akan menampilkan BottomNavigationBar
@@ -56,7 +61,7 @@ fun AppRouting(
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = Screen.Login.route, // Set the starting screen
+            startDestination = Screen.AddMenuList.route, // Set the starting screen
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(Screen.Register.route) {
@@ -76,7 +81,11 @@ fun AppRouting(
                 )
             }
             composable(Screen.Home.route) {
-                HomeView(navController, restaurantViewModel, context = LocalContext.current) // Pass the navController to HomeView
+                HomeView(
+                    navController,
+                    restaurantViewModel,
+                    context = LocalContext.current
+                ) // Pass the navController to HomeView
             }
             composable(Screen.Wishlist.route) {
                 WishlistView(navController) // Screen to navigate to
@@ -104,6 +113,28 @@ fun AppRouting(
                     context = LocalContext.current,
                     token = String()
                 )
+            }
+
+            composable(Screen.AddMenu.route) {
+                AddMenuView(
+                    menuViewModel,
+                    navController
+                )
+            }
+
+            composable(Screen.AddMenuList.route) {
+                MenuCardListView(
+                    menuViewModel,
+                    navController
+                )
+            }
+
+            composable(
+                route = "menuDetail/{menuId}",
+                arguments = listOf(navArgument("menuId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val menuId = backStackEntry.arguments?.getString("menuId")?.toIntOrNull() ?: 0
+                MenuDetail(menuId = menuId, navController = navController)
             }
         }
     }
