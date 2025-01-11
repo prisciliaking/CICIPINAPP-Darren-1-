@@ -1,28 +1,62 @@
 package com.example.cicipinapp.views
 
+import android.content.Context
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.cicipinapp.R
+import androidx.navigation.NavHostController
+import com.example.cicipinapp.viewModels.MenuViewModel
+import coil.compose.rememberAsyncImagePainter
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddMenu() {
-    var menuName by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
+fun AddMenuView(
+    menuViewModel: MenuViewModel,
+    navController: NavHostController
+) {
+    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
+    var menuName by remember { mutableStateOf(menuViewModel.menuName) }
+    var menuDescription by remember { mutableStateOf(menuViewModel.menuDescription) }
+    var menuPrice by remember { mutableStateOf(menuViewModel.menuPrice) }
+    val RestaurantsID by menuViewModel.RestaurantsID.collectAsState()
+    val context = LocalContext.current
+
+    // Fetch token from SharedPreferences
+    val token = remember {
+        context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+            .getString("auth_token", "") ?: ""
+    }
+
+    // Launcher for image picker
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        if (uri != null) {
+            selectedImageUri = uri
+            menuViewModel.imageUrl = uri.toString() // Convert Uri to String
+        } else {
+            menuViewModel.imageUrl = "" // Handle null case
+        }
+    }
+
 
     Scaffold(
         topBar = {
@@ -32,14 +66,6 @@ fun AddMenu() {
                     .background(Color.White)
                     .padding(19.dp)
             ) {
-                Image(
-                    painter = painterResource(R.drawable.baseline_arrow_back_ios_24),
-                    contentDescription = "Back",
-                    modifier = Modifier
-                        .size(24.dp)
-                        .clip(CircleShape)
-                )
-                Spacer(modifier = Modifier.width(10.dp))
                 Text(
                     text = "Add Menu",
                     fontSize = 24.sp,
@@ -62,21 +88,23 @@ fun AddMenu() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(200.dp)
-                    .background(Color(0xFFF5F5F5), RoundedCornerShape(8.dp)),
+                    .background(Color.LightGray, shape = RoundedCornerShape(8.dp))
+                    .clickable { imagePickerLauncher.launch("image/*") },
                 contentAlignment = Alignment.Center
             ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Text(
-                        "Insert The Image",
-                        color = Color.Gray
+                if (selectedImageUri != null) {
+                    Image(
+                        painter = rememberAsyncImagePainter(selectedImageUri),
+                        contentDescription = "Selected Image",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
                     )
-                    Text(
-                        "+",
-                        fontSize = 24.sp,
-                        color = Color.Gray
+                } else {
+                    Icon(
+                        imageVector = Icons.Default.AddCircle,
+                        contentDescription = "Add Image",
+                        tint = Color.White,
+                        modifier = Modifier.size(50.dp)
                     )
                 }
             }
@@ -97,8 +125,8 @@ fun AddMenu() {
 
             Text("Menu Description")
             TextField(
-                value = description,
-                onValueChange = { description = it },
+                value = menuDescription,
+                onValueChange = { menuDescription = it },
                 placeholder = { Text("Menu Description") },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -111,10 +139,28 @@ fun AddMenu() {
                 )
             )
 
-            Spacer(modifier = Modifier.weight(1f))
+            Text("Menu Price")
+            TextField(
+                value = menuPrice,
+                onValueChange = { menuPrice = it },
+                placeholder = { Text("Menu Price") },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(8.dp),
+                colors = TextFieldDefaults.textFieldColors(
+                    containerColor = Color(0xFFF5F5F5),
+                    unfocusedIndicatorColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent
+                )
+            )
 
             Button(
-                onClick = { },
+                onClick = {
+                    menuViewModel.createMenu(
+                        navController,
+                        token = token, menuName,
+                        selectedImageUri.toString(), menuDescription, menuPrice, RestaurantsID
+                    )
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp),
@@ -127,10 +173,4 @@ fun AddMenu() {
             }
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun AddMenuPreview() {
-    AddMenu()
 }

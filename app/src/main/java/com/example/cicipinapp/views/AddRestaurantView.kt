@@ -40,7 +40,7 @@ fun AddRestaurantView(
     var textLongitude by remember { mutableStateOf(restaurantViewModel.longtitudeInput) }
     var textDescription by remember { mutableStateOf(restaurantViewModel.descriptionInput) }
     val userID by restaurantViewModel.userID.collectAsState()
-    var userIDInt by remember { mutableStateOf(userID) }
+    var userIDInt by remember { mutableIntStateOf(userID) }
 
     var category by remember { mutableStateOf("") }
 

@@ -66,7 +66,8 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation ("androidx.navigation:navigation-compose:2.7.2") // Versi terbaru Jetpack Navigation
-    implementation ("androidx.compose.material3:material3:1.1.1")   // Untuk Material3 jika belum ditambahkan
+    implementation ("androidx.compose.material3:material3:1.1.1")
+    implementation(libs.firebase.database.ktx)   // Untuk Material3 jika belum ditambahkan
 
     // Testing libraries
     testImplementation(libs.junit)
@@ -96,8 +97,12 @@ dependencies {
     implementation ("androidx.compose.runtime:runtime-livedata:1.6.0-alpha01") // Check for the latest version
     implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1")
 
+
     implementation ("androidx.datastore:datastore-preferences:1.0.0")
-    implementation ("androidx.datastore:datastore:1.0.0")
+    implementation ("androidx.datastore:datastore-core:1.0.0")
+
+    //for image
+    implementation ("io.coil-kt:coil-compose:2.4.0")
 
 
 }
