@@ -6,6 +6,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -16,6 +18,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,6 +38,7 @@ import com.example.cicipinapp.navigation.Screen
 import com.example.cicipinapp.viewModels.AuthenticationViewModel
 import com.example.cicipinapp.viewModels.HomeViewModel
 import com.example.cicipinapp.viewModels.RestaurantViewModel
+import com.example.cicipinapp.views.cards.RestaurantCardView
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,6 +53,8 @@ fun HomeView(navController: NavHostController,
     var userIDInt by remember { mutableStateOf(userID) }
 
     var searchText by remember { mutableStateOf("") }
+    val restaurantList by restaurantViewModel.restaurantList.observeAsState(emptyList())
+
     Scaffold(
 
     ) { innerPadding ->
@@ -137,7 +143,7 @@ fun HomeView(navController: NavHostController,
 
                 Row(
                     modifier = Modifier
-                        .padding(13.dp)
+                        .padding(start = 13.dp, end = 13.dp)
                         .fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween // Mengatur teks kiri dan kanan
                 ) {
@@ -155,22 +161,17 @@ fun HomeView(navController: NavHostController,
                         }
                     )
                 }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-//                Taruh Resto Card Recommendation disini
-
-
-
-
-
+                // LazyColumn to display the list of restaurants
+                LazyColumn(
+                    contentPadding = innerPadding,
+                    modifier = Modifier.fillMaxSize()
+                        .background(Color.White)
+                ) {
+                    items(restaurantList) { restaurant ->
+                        RestaurantCardView(restaurant = restaurant, navController = navController)
+                    }
+                }
             }
-
-            // Content for Fusion Foods or additional content here
-
-
-            Spacer(modifier = Modifier.height(16.dp))
-
 
         }
     }

@@ -10,11 +10,15 @@ sealed class Screen(val route: String) {
     object Setting : Screen("setting")
     object ProfileSetting : Screen("profile_setting")
     object Register : Screen("register")
-    object Login: Screen("login")
+    object Login : Screen("login")
     object AddRestaurant : Screen("add_restaurant")
     object AddMenu : Screen("add_menu")
     object AddMenuList : Screen("addmenu_list")
-    object MenuDetail : Screen("menu_detail/{menuId}") {
-        fun createRoute(menuId: String): String = "menu_detail/$menuId"
+    object RestaurantDetail : Screen("restaurant_detail/{id}") {
+        fun createRoute(id: Int) = "restaurant_detail/$id"
+    }
+
+    object MenuDetail : Screen("menu_detail/{id}") {
+        fun createRoute(id: Int) = "menu_detail/$id"
     }
 }

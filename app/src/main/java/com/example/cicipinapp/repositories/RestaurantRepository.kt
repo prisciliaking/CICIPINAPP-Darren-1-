@@ -1,15 +1,14 @@
 package com.example.cicipinapp.repositories
 
 import com.example.cicipinapp.models.GeneralResponseModel
-import com.example.cicipinapp.models.GetAllRestaurant
 import com.example.cicipinapp.models.GetRestaurantResponse
+import com.example.cicipinapp.models.RestaurantModel
 import com.example.cicipinapp.models.RestaurantRequest
 import com.example.cicipinapp.service.RestaurantAPIService
 import retrofit2.Call
 
 interface RestaurantRepository {
-    fun getAllRestaurants(token: String): Call<GetAllRestaurant>
-
+    fun getAllRestaurants(): Call<List<RestaurantModel>>
     fun createRestaurant(
         UsersID: Int,
         token: String,
@@ -20,14 +19,15 @@ interface RestaurantRepository {
         description: String
     ): Call<GeneralResponseModel>
 
-    fun getRestaurantById(token: String, id: Int): Call<GetRestaurantResponse>
+    fun getRestaurantById(restaurantID: Int): Call<GetRestaurantResponse>
+
 }
 
 class NetworkRestaurantRepository(
-    private val RestaurantAPIService: RestaurantAPIService
+    private val restaurantAPIService: RestaurantAPIService
 ): RestaurantRepository {
-    override fun getAllRestaurants(token: String): Call<GetAllRestaurant> {
-        return RestaurantAPIService.getAllRestaurants()
+    override fun getAllRestaurants(): Call<List<RestaurantModel>> {
+        return restaurantAPIService.getAllRestaurants()
     }
 
     override fun createRestaurant(
@@ -40,12 +40,15 @@ class NetworkRestaurantRepository(
         description: String
 
     ): Call<GeneralResponseModel> {
-        return RestaurantAPIService.createRestaurant(
+        return restaurantAPIService.createRestaurant(
             token, RestaurantRequest(name, address, longtitude, latitude, description, UsersID)
         )
     }
 
-    override fun getRestaurantById(token: String, id: Int): Call<GetRestaurantResponse> {
-        return  RestaurantAPIService.getRestaurantById(token, id)
+    override fun getRestaurantById(restaurantID: Int): Call<GetRestaurantResponse> {
+        return restaurantAPIService.getRestaurant(restaurantID)
     }
+
+
+
 }

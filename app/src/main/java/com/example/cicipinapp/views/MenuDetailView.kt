@@ -1,7 +1,5 @@
 package com.example.cicipinapp.views
 
-
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -10,7 +8,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -20,27 +17,43 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import coil.compose.rememberAsyncImagePainter
 import com.example.cicipinapp.R
-import com.example.cicipinapp.viewModels.MenuViewModel
+import com.example.cicipinapp.models.MenuModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MenuDetail(menuId: Int, navController: NavController) {
-    val viewModel: MenuViewModel = viewModel(factory = MenuViewModel.Factory)
-    val menu by viewModel.menuDetail.observeAsState()
-    val errorMessage by viewModel.errorMessage.observeAsState()
-
-    // Trigger fetching the menu when the composable is first displayed
-
-    LaunchedEffect(menuId) {
-        Log.d("Menu Detail View", "menu id setelah masuk ke launched = $menuId")
-        viewModel.fetchMenuById(token = "", menuId)
-        Log.d("Menu Detail View", "Menu response setelah di fetch: $menu")
+fun MenuDetail(
+    menu: MenuModel?,
+    navController: NavController
+) {
+    // Show loading while the menu is being fetched
+    if (menu == null) {
+        LoadingState(navController)
+    } else {
+        MenuContent(menu = menu, navController = navController)
     }
+}
 
+@Composable
+fun LoadingState(navController: NavController) {
+    // Placeholder for loading state, can be a progress bar or text
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+            .background(Color.White),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        CircularProgressIndicator(color = Color.Blue)
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(text = "Loading menu...", fontSize = 18.sp, color = Color.Black)
+    }
+}
+
+@Composable
+fun MenuContent(menu: MenuModel, navController: NavController) {
     Scaffold(
         topBar = {
             Row(
@@ -83,75 +96,35 @@ fun MenuDetail(menuId: Int, navController: NavController) {
                 .background(Color.White)
                 .padding(innerPadding)
         ) {
+            // Menu image
+            Image(
+                painter = painterResource(R.drawable.restoimage), // Default image if no image exists
+                contentDescription = menu.image ?: "Menu Image",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 25.dp, end = 25.dp)
+                    .clip(RoundedCornerShape(8.dp)),
+                contentScale = ContentScale.Crop
+            )
 
-            when {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(
+                    text = menu.name,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                )
 
-                menu != null -> {
-                    Log.d("Menu Detail View", "menu response = $menu")
-                    // Display menu details
-                    Image(
-                        painter = rememberAsyncImagePainter(menu?.image),
-                        contentDescription = menu?.name,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 25.dp, end = 25.dp)
-                            .clip(RoundedCornerShape(8.dp)),
-                        contentScale = ContentScale.Crop
-                    )
+                Spacer(modifier = Modifier.height(8.dp))
 
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text(
-                            text = menu?.name ?: "Unknown",
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.Black
-                        )
-
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        Text(
-                            text = menu?.description ?: "No description available",
-                            fontSize = 14.sp,
-                            color = Color.Gray,
-                            lineHeight = 20.sp
-                        )
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        Text(
-                            text = "Price: $${menu?.price}",
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = Color.Black
-                        )
-                    }
-                }
-                !errorMessage.isNullOrEmpty() -> {
-                    // Display error message
-                    Text(
-                        text = errorMessage!!,
-                        color = Color.Red,
-                        modifier = Modifier.padding(16.dp)
-                    )
-                }
-                else -> {
-                    // Show loading state
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(innerPadding),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
-                }
+                Text(
+                    text = menu.description,
+                    fontSize = 14.sp,
+                    color = Color.Gray,
+                    lineHeight = 20.sp
+                )
             }
         }
     }
 }
 
-//@Preview(showBackground = true)
-//@Composable
-//private fun MenuDetailPreview() {
-//    MenuDetail()
-//}

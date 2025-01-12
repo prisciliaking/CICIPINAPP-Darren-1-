@@ -40,7 +40,7 @@ fun AddRestaurantView(
     var textLongitude by remember { mutableStateOf(restaurantViewModel.longtitudeInput) }
     var textDescription by remember { mutableStateOf(restaurantViewModel.descriptionInput) }
     val userID by restaurantViewModel.userID.collectAsState()
-    var userIDInt by remember { mutableIntStateOf(userID) }
+    var userIDInt by remember { mutableStateOf(userID) }
 
     var category by remember { mutableStateOf("") }
 
@@ -76,33 +76,6 @@ fun AddRestaurantView(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            item {
-                Text("Insert Image Restaurant")
-            }
-            item {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(100.dp)
-                        .background(Color(0xFFF5F5F5), RoundedCornerShape(8.dp)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            "Insert The Image",
-                            color = Color.Gray
-                        )
-                        Text(
-                            "+",
-                            fontSize = 24.sp,
-                            color = Color.Gray
-                        )
-                    }
-                }
-            }
             item {
                 Text("Restaurant Name")
             }
@@ -189,23 +162,6 @@ fun AddRestaurantView(
                         modifier = Modifier.weight(1f)
                     )
                 }
-            }
-            item {
-                Text("Restaurant Category")
-            }
-            item {
-                TextField(
-                    value = category,
-                    onValueChange = { category = it },
-                    placeholder = { Text("Restaurant Category") },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(8.dp),
-                    colors = TextFieldDefaults.textFieldColors(
-                        containerColor = Color(0xFFF5F5F5),
-                        unfocusedIndicatorColor = Color.Transparent,
-                        focusedIndicatorColor = Color.Transparent
-                    )
-                )
             }
             item {
                 Spacer(modifier = Modifier.height(16.dp))

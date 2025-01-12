@@ -20,7 +20,8 @@ interface UserRepository {
     val currentUsername: Flow<String>
     val currentUserID: Flow<Int>
 
-    fun logout(token: String): Call<GeneralResponseModel>
+    fun logout(userid: Int): Call<GeneralResponseModel>
+    suspend fun clearUserSession() // New method to clear user data
 
     suspend fun saveUserToken(token: String)
 
@@ -69,7 +70,16 @@ class NetworkUserRepository(
         }
     }
 
-    override fun logout(token: String): Call<GeneralResponseModel> {
-        return userAPIService.logout(token)
+    override fun logout(userid: Int): Call<GeneralResponseModel> {
+        return userAPIService.logout(mapOf("id" to userid))
+    }
+
+
+    override suspend fun clearUserSession() {
+        userDataStore.edit { preferences ->
+            preferences.remove(USER_TOKEN)
+            preferences.remove(USERNAME)
+            preferences.remove(USERID)
+        }
     }
 }
