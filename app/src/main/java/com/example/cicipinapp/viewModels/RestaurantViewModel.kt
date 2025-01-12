@@ -4,6 +4,8 @@ import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
@@ -15,16 +17,24 @@ import com.example.cicipinapp.CicipInApp
 import com.example.cicipinapp.enums.PagesEnum
 import com.example.cicipinapp.models.ErrorModel
 import com.example.cicipinapp.models.GeneralResponseModel
-import com.example.cicipinapp.models.GetAllRestaurant
+import com.example.cicipinapp.models.GetRestaurantResponse
+import com.example.cicipinapp.models.RestaurantModel
+import com.example.cicipinapp.models.RestaurantResponse
+import com.example.cicipinapp.models.toRestaurantModel
+import com.example.cicipinapp.navigation.Screen
 import com.example.cicipinapp.repositories.RestaurantRepository
 import com.example.cicipinapp.repositories.UserRepository
 import com.example.cicipinapp.uiStates.RestaurantDataStatusUIState
 import com.example.cicipinapp.uiStates.StringDataStatusUIState
 import com.google.gson.Gson
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -74,25 +84,20 @@ class RestaurantViewModel(
     var descriptionInput by mutableStateOf("")
         private set
 
-    fun updateNameInput(input: String) {
-        nameInput = input
-    }
+    private val _restaurantList = MutableLiveData<List<RestaurantModel>>()
+    val restaurantList: LiveData<List<RestaurantModel>> = _restaurantList
 
-    fun updateAddressInput(input: String) {
-        addressInput = input
-    }
 
-    fun updateLongtitudeInput(input: String) {
-        longtitudeInput = input
-    }
+    private val _restaurant = MutableStateFlow<RestaurantModel?>(null)
+    val restaurant: StateFlow<RestaurantModel?> = _restaurant
 
-    fun updateLatitudeInput(input: String) {
-        latitudeInput = input
-    }
+    private val _restaurantDetail = MutableStateFlow<GetRestaurantResponse?>(null)
+    val restaurantDetail: StateFlow<GetRestaurantResponse?> = _restaurantDetail
 
-    fun updateDescriptionInput(input: String) {
-        descriptionInput = input
-    }
+
+    private val _errorMessage = MutableLiveData<String>()
+    val errorMessage: LiveData<String> = _errorMessage
+
 
     companion object{
         val Factory: ViewModelProvider.Factory = viewModelFactory {
@@ -113,7 +118,7 @@ class RestaurantViewModel(
             Log.d("token-restaurant", "TOKEN: ${token}")
             try {
                 val call = restaurantRepository.createRestaurant(
-                     token = token, name = nameInput, address = addressInput, longtitude = longtitudeInput, latitude = latitudeInput, description = descriptionInput, UsersID = userIDInput)
+                    token = token, name = nameInput, address = addressInput, longtitude = longtitudeInput, latitude = latitudeInput, description = descriptionInput, UsersID = userIDInput)
 
                 call.enqueue(object: Callback<GeneralResponseModel> {
                     override fun onResponse(
@@ -123,8 +128,8 @@ class RestaurantViewModel(
                         if (res.isSuccessful) {
                             Log.d("json", "JSON RESPONSE: ${res.body()!!.data}")
 
-                            navController.navigate(PagesEnum.Home.name) {
-                                popUpTo(PagesEnum.Login.name) {
+                            navController.navigate(Screen.AddMenuList.route) {
+                                popUpTo(PagesEnum.MenuList.name) {
                                     inclusive = true
                                 }
                             }
@@ -138,50 +143,89 @@ class RestaurantViewModel(
                     }
 
                     override fun onFailure(call: Call<GeneralResponseModel>, t: Throwable) {
-                        submissionStatus = StringDataStatusUIState.Failed(t.localizedMessage ?: "An unknown error occurred")
+                        submissionStatus = StringDataStatusUIState.Failed(t.localizedMessage)
                     }
-
 
                 })
             } catch (error: IOException) {
-                dataStatus = RestaurantDataStatusUIState.Failed(error.localizedMessage ?: "An unknown error occurred")
+                submissionStatus = StringDataStatusUIState.Failed(error.localizedMessage)
+            }
+        }
+    }
+
+    fun fetchRestaurantById(restaurantId: Int) {
+        viewModelScope.launch {
+            try {
+                val response = restaurantRepository.getRestaurantById(restaurantId).execute()
+                if (response.isSuccessful) {
+                    response.body()?.let {
+                        _restaurant.value = it.toRestaurantModel()
+                    }
+
+                } else {
+                    Log.e("API_ERROR", "Error fetching details: ${response.errorBody()?.string()}")
+                }
+            } catch (e: Exception) {
+                Log.e("API_FAILURE", "Failed to fetch details: ${e.message}")
+            }
+        }
+    }
+
+
+
+
+
+    //    PANGGIL RESTAURANT
+    fun fetchAllResto() {
+        restaurantRepository.getAllRestaurants().enqueue(object : Callback<List<RestaurantModel>> {
+            override fun onResponse(
+                call: Call<List<RestaurantModel>>,
+                response: Response<List<RestaurantModel>>
+            ) {
+                if (response.isSuccessful) {
+                    try {
+                        // Get the list of restaurants, or assign an empty list if null
+                        val restaurants = response.body() ?: emptyList()
+
+                        if (restaurants.isNotEmpty()) {
+                            // Successfully retrieved the list of restaurants
+                            Log.d("API_SUCCESS", "Restaurants: $restaurants")
+                            _restaurantList.value = restaurants // Update LiveData
+                        } else {
+                            // No restaurants in the response
+                            Log.d("API_SUCCESS", "No restaurants available.")
+                            _restaurantList.value = emptyList() // Set an empty list
+                        }
+                    } catch (e: Exception) {
+                        // Handle any unexpected errors while parsing the response
+                        Log.e("PARSE_ERROR", "Error parsing response: ${e.message}")
+                        _restaurantList.value = emptyList() // Set an empty list on error
+                    }
+                } else {
+                    // Log the error response body for debugging
+                    val errorBody = response.errorBody()?.string()
+                    Log.e("API_ERROR", "Error response: $errorBody")
+                    _restaurantList.value = emptyList() // Set an empty list if error occurs
+                }
             }
 
-        }
+            override fun onFailure(call: Call<List<RestaurantModel>>, t: Throwable) {
+                // Handle network or unexpected errors
+                Log.e("API_FAILURE", "Request failed: ${t.message}")
+                _restaurantList.value = emptyList() // Set an empty list if request fails
+            }
+        })
     }
 
 
-//    PANGGIL RESTAURANT
-fun getAllRestaurants(token: String) {
-    viewModelScope.launch {
-        Log.d("token-home", "TOKEN AT HOME: ${token}")
-        try {
-            val call = restaurantRepository.getAllRestaurants(token)
-            call.enqueue(object : Callback<GetAllRestaurant> {
-                override fun onResponse(call: Call<GetAllRestaurant>, res: Response<GetAllRestaurant>) {
-                    if (res.isSuccessful) {
-                        dataStatus = RestaurantDataStatusUIState.Success(res.body()!!.data)
 
-                        Log.d("data-result", "TODO LIST DATA: ${dataStatus}")
-                    } else {
-                        val errorMessage = Gson().fromJson(
-                            res.errorBody()!!.charStream(),
-                            ErrorModel::class.java
-                        )
 
-                        dataStatus = RestaurantDataStatusUIState.Failed(errorMessage.errors)
-                    }
-                }
-
-                override fun onFailure(call: Call<GetAllRestaurant>, t: Throwable) {
-                    dataStatus = RestaurantDataStatusUIState.Failed(t.localizedMessage ?: "An unknown error occurred")
-                }
-
-            })
-        } catch (error: IOException) {
-            dataStatus = RestaurantDataStatusUIState.Failed(error.localizedMessage ?: "An unknown error occurred")
+    fun saveUsernameToken(token: String, username: String, userID: Int) {
+        viewModelScope.launch {
+            userRepository.saveUserToken(token)
+            userRepository.saveUsername(username)
+            userRepository.saveUserID(userID)
         }
     }
-}
 
 }

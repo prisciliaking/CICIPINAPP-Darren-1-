@@ -1,8 +1,8 @@
 package com.example.cicipinapp.service
 
 import com.example.cicipinapp.models.GeneralResponseModel
-import com.example.cicipinapp.models.GetAllRestaurant
 import com.example.cicipinapp.models.GetRestaurantResponse
+import com.example.cicipinapp.models.RestaurantModel
 import com.example.cicipinapp.models.RestaurantRequest
 import retrofit2.Call
 import retrofit2.http.Body
@@ -17,9 +17,8 @@ interface RestaurantAPIService {
     fun createRestaurant(@Header("X-API-TOKEN") token: String, @Body restaurantModel: RestaurantRequest): Call<GeneralResponseModel>
 
     @GET("/cicipin/restaurants")
-    fun getAllRestaurants(): Call<GetAllRestaurant>
+    fun getAllRestaurants(): Call<List<RestaurantModel>>
 
-    @GET("cicipin/restaurants/get-by-id/{id}")
-    fun getRestaurantById(@Header("X-API-TOKEN") token: String, @Path("id") id: Int): Call<GetRestaurantResponse>
-
+    @GET("cicipin/restaurants/{id}")
+    fun getRestaurant(@Path("id") id: Int): Call<GetRestaurantResponse>
 }

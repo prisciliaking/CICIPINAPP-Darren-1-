@@ -33,6 +33,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.cicipinapp.R
+import com.example.cicipinapp.navigation.Screen
 import com.example.cicipinapp.viewModels.RestaurantViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -59,7 +60,7 @@ fun SettingView(navController: NavController, restaurantViewModel: RestaurantVie
                         .clip(CircleShape) // Membuat gambar menjadi bulat (opsional untuk ikon back)
                         .clickable {
                             // Logika Back
-                            navController.popBackStack()
+                            navController.navigate(Screen.Home.route)
                         }
                 )
                 Spacer(modifier = Modifier.width(10.dp))

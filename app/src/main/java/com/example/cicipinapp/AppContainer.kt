@@ -3,31 +3,38 @@ package com.example.cicipinapp
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
-import com.example.cicipinapp.repositories.*
-import com.example.cicipinapp.service.*
+import androidx.datastore.preferences.preferencesDataStore
+import com.example.cicipinapp.repositories.AuthenticationRepository
+import com.example.cicipinapp.repositories.NetworkAuthenticationRepository
+import com.example.cicipinapp.repositories.NetworkRestaurantRepository
+import com.example.cicipinapp.repositories.NetworkUserRepository
+import com.example.cicipinapp.repositories.RestaurantRepository
+import com.example.cicipinapp.repositories.UserRepository
+import com.example.cicipinapp.service.AuthenticationAPIService
+import com.example.cicipinapp.service.RestaurantAPIService
+import com.example.cicipinapp.service.UserAPIService
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-// Interface untuk dependency injection
+
+
+// A container is an object that contains the dependencies that the app requires.
+// These dependencies are used across the whole application, so they need to be in a common place that all activities can use.
+// You can create a subclass of the Application class and store a reference to the container.
 interface AppContainer {
     val authenticationRepository: AuthenticationRepository
     val userRepository: UserRepository
-    val restaurantRepository: RestaurantRepository
-    val menuRepository: MenuRepository
-    val wishlistRepository: WishlistRepository
-    val reviewRepository: ReviewRepository
-    val menuCategoryRepository: MenuCategoryRepository
-    val restaurantCategoryRepository: RestaurantCategoryRepository
+val restaurantRepository: RestaurantRepository
 }
 
 // Default implementation
 class DefaultAppContainer(
     private val userDataStore: DataStore<Preferences>
-) : AppContainer {
-
-    private val baseUrl = "http://192.168.45.47:3000"
+): AppContainer {
+    // change it to your own local ip please
+    private val baseUrl = "http://172.20.10.10:3000/"
 
     // Retrofit Service
     private val retrofit: Retrofit by lazy {
@@ -57,6 +64,19 @@ class DefaultAppContainer(
     private val restaurantAPIService: RestaurantAPIService by lazy {
         retrofit.create(RestaurantAPIService::class.java)
     }
+
+    private val menuRetrofitService: MenuAPIService by lazy {
+        val retrofit = initRetrofit()
+
+        retrofit.create(MenuAPIService::class.java)
+    }
+
+    private val wishlistRetrofitService: WishlistAPIService by lazy {
+        val retrofit = initRetrofit()
+
+        retrofit.create(WishlistAPIService::class.java)
+    }
+
 
     private val menuAPIService: MenuAPIService by lazy {
         retrofit.create(MenuAPIService::class.java)
@@ -89,6 +109,14 @@ class DefaultAppContainer(
 
     override val restaurantRepository: RestaurantRepository by lazy {
         NetworkRestaurantRepository(restaurantAPIService)
+    }
+
+    override val menuRepository: MenuRepository by lazy {
+        NetworkMenuRepository(menuRetrofitService)
+    }
+
+    override val wishlistRepository: WishlistRepository by lazy {
+        NetworkWishlistRepository(wishlistRetrofitService)
     }
 
     override val menuRepository: MenuRepository by lazy {

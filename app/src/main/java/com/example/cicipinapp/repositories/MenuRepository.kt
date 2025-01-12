@@ -1,5 +1,6 @@
 package com.example.cicipinapp.repositories
 
+import android.util.Log
 import com.example.cicipinapp.models.*
 import com.example.cicipinapp.service.MenuAPIService
 import retrofit2.Call
@@ -13,12 +14,14 @@ interface MenuRepository {
         image: String,
         description: String,
         price: String,
-        restaurantId: Int
+        restaurantsID: Int
+
     ): Call<GeneralResponseModel>
+    fun getMenuById(menuId: Int): Call<GetMenuResponse>
+//    fun getMenuById(menuId: Int): Call<GetMenuResponse>
 
-    fun getMenuById(token: String, id: Int): Call<GetMenuResponse>
 
-    // New method for fetching menus by restaurant ID
+
     fun getMenuByRestaurantId(restaurantId: Int): Call<GetAllMenu>
 }
 
@@ -35,18 +38,18 @@ class NetworkMenuRepository(
         image: String,
         description: String,
         price: String,
-        RestaurantsID: Int
+        restaurantsID: Int
     ): Call<GeneralResponseModel> {
         return menuAPIService.createMenu(
-            token, MenuRequest(name, image, description, price, RestaurantsID)
+            token, MenuRequest(name, image, description, price, restaurantsID)
         )
     }
 
-    override fun getMenuById(token: String, id: Int): Call<GetMenuResponse> {
-        return menuAPIService.getMenuByID(token, id)
+    override fun getMenuById(menuId: Int): Call<GetMenuResponse> {
+        return menuAPIService.getMenuByID(menuId)
     }
+ 
 
-    // New implementation for fetching menus by restaurant ID
     override fun getMenuByRestaurantId(restaurantId: Int): Call<GetAllMenu> {
         return menuAPIService.getAllMenuByRestaurantId(restaurantId)
     }

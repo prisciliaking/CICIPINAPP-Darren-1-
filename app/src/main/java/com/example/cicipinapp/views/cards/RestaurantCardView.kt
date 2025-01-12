@@ -15,7 +15,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -25,75 +24,67 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.cicipinapp.R
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.navigation.NavController
+import com.example.cicipinapp.models.RestaurantModel
+import com.example.cicipinapp.navigation.Screen
 import com.example.cicipinapp.viewModels.RestaurantViewModel
 
 @Composable
-fun RestaurantCardView(restaurantViewModel: RestaurantViewModel){
+fun RestaurantCardView(restaurant: RestaurantModel, navController: NavController) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp),
-//                onClick = onCardClick,
+            .padding(8.dp)
+            .clickable {
+                navController.navigate(Screen.RestaurantDetail.createRoute(restaurant.id))
+
+            },
         colors = CardDefaults.cardColors(
-            containerColor = Color.White)
+            containerColor = Color.White
+        )
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(12.dp)
+                .padding(start = 12.dp, end = 12.dp)
         ) {
+            // Image Placeholder (use a real image or sample)
             Box(
                 modifier = Modifier
                     .size(125.dp)
                     .clip(RoundedCornerShape(16.dp))
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.restoimage),
+                    painter = painterResource(id = R.drawable.restoimage), // Replace with your actual image
                     contentDescription = null,
-                    modifier = Modifier.size(470.dp),
+                    modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
                 )
             }
             Spacer(modifier = Modifier.width(12.dp))
             Column(modifier = Modifier.padding(top = 8.dp)) {
                 Text(
-                    text = "restaurant.name",
+                    text = restaurant.name,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.SemiBold
                 )
                 Spacer(modifier = Modifier.height(4.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Image(
-                        painter = painterResource(id = R.drawable.baseline_star_24),
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-//                            Text(text = "${restaurant.rating}", fontSize = 16.sp)
-                }
-                Spacer(modifier = Modifier.height(4.dp))
-//                        Text(text = "restaurant.location", fontSize = 14.sp)
-                Spacer(modifier = Modifier.height(6.dp))
-                Row {
-//                            Text(
-//                                text = "${restaurant.distance} km ",
-//                                fontSize = 14.sp,
-//                                fontWeight = FontWeight.Bold
-//                            )
-                    Text(
-                        text = "from your location",
-                        fontSize = 14.sp
-                    )
-                }
+                Text(
+                    text = restaurant.address,
+                    fontSize = 14.sp
+                )
             }
         }
     }
 }
 
+
+
 @Preview(showBackground = true)
 @Composable
 private fun RestaurantCardPreview(){
-    RestaurantCardView(restaurantViewModel = viewModel())
+
 }
