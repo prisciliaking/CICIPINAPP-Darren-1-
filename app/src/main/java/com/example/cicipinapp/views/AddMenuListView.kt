@@ -37,16 +37,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.example.cicipinapp.R
 import com.example.cicipinapp.models.MenuModel
+import com.example.cicipinapp.models.RestaurantModel
 import com.example.cicipinapp.navigation.Screen
 import com.example.cicipinapp.uiStates.MenuDataStatusUIState
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun MenuCardListView(menuViewModel: MenuViewModel, navController: NavHostController) {
+fun MenuCardListView(restaurant: RestaurantModel?, menuViewModel: MenuViewModel, navController: NavHostController) {
     val menuDataStatus by menuViewModel.menuDataStatus.observeAsState(MenuDataStatusUIState.Loading)
 
     LaunchedEffect(Unit) {
-        menuViewModel.fetchMenuByRestaurantId(3)
+        restaurant?.let { menuViewModel.fetchMenuByRestaurantId(it.id) }
     }
     Scaffold(
         topBar = {
@@ -83,8 +84,8 @@ fun MenuCardListView(menuViewModel: MenuViewModel, navController: NavHostControl
                     .fillMaxSize()
                     .padding(top = 10.dp)
             ) {
-                    when (menuDataStatus) {
-                        is MenuDataStatusUIState.Loading -> {
+                when (menuDataStatus) {
+                    is MenuDataStatusUIState.Loading -> {
                         CircularProgressIndicator(modifier = Modifier.padding(8.dp))
                     }
 

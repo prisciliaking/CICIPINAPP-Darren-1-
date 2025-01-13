@@ -30,7 +30,6 @@ import com.example.cicipinapp.views.AddMenuView
 import com.example.cicipinapp.views.AddRestaurantView
 import com.example.cicipinapp.views.LoginView
 import com.example.cicipinapp.views.MenuCardListView
-import com.example.cicipinapp.views.MenuDetail
 import com.example.cicipinapp.views.RestoDetailsView
 
 
@@ -128,10 +127,14 @@ fun AppRouting(
             }
 
             composable(Screen.AddMenuList.route) {
-                MenuCardListView(
-                    menuViewModel,
-                    navController
-                )
+                val restaurant = restaurantViewModel.restaurantList.value.orEmpty().find { it.id == id }
+                if (restaurant != null) {
+                    MenuCardListView(
+                        restaurant = restaurant,
+                        menuViewModel,
+                        navController
+                    )
+                }
             }
 
             composable(

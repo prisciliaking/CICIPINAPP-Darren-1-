@@ -20,11 +20,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
+import com.example.cicipinapp.R
 import com.example.cicipinapp.models.MenuModel
 import com.example.cicipinapp.navigation.Screen
 import java.text.NumberFormat
@@ -35,11 +37,6 @@ fun MenuCardView(menu: MenuModel, navController: NavController) {
     Card(
         modifier = Modifier
             .fillMaxWidth(),
-//            .clickable {
-//                Log.d("MenuCard", "Navigating to MenuDetail with menuId: ${menu.id}")
-//                navController.navigate(Screen.MenuDetail.createRoute(menu.id))
-//                Log.d("MenuCardView", "Clicked menuId: ${menu.id}")
-//            },
         shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
@@ -49,7 +46,7 @@ fun MenuCardView(menu: MenuModel, navController: NavController) {
         ) {
             // Menu Image
             Image(
-                painter = rememberAsyncImagePainter(menu.image),
+                painter = painterResource(R.drawable.download__1_) ,
                 contentDescription = "Menu Image",
                 modifier = Modifier
                     .size(80.dp)

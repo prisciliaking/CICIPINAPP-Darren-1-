@@ -189,6 +189,45 @@ fun SettingView(navController: NavController, restaurantViewModel: RestaurantVie
             Column(
                 modifier = Modifier
                     .padding(5.dp)
+                    .clickable {
+                        navController.navigate(Screen.AddMenu.route)
+                    }
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 12.dp, horizontal = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Image(
+                        painter = painterResource(R.drawable.baseline_add_business_24),
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Text(
+                        text = "Add Menu",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium,
+                        modifier = Modifier.weight(1f),
+                        color = Color.Black
+                    )
+                    Icon(
+                        imageVector = Icons.Default.KeyboardArrowRight,
+                        contentDescription = null,
+                        tint = Color.Black
+                    )
+                }
+                Divider(
+                    color = Color.Gray,
+                    thickness = 0.3.dp,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+            }
+
+            Column(
+                modifier = Modifier
+                    .padding(5.dp)
                     .clickable { val phoneNumber = "+6281254528406" // Nomor tujuan
                         val whatsappUrl = "https://wa.me/$phoneNumber"
                         val intent = Intent(Intent.ACTION_VIEW).apply {

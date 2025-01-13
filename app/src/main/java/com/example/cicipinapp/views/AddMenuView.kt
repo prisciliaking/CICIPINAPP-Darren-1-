@@ -171,8 +171,12 @@ fun AddMenuView(
                 onClick = {
                     menuViewModel.createMenu(
                         navController,
-                        token = token, menuName,
-                        selectedImageUri.toString(), menuDescription, menuPrice, RestaurantsID
+                        token = token,
+                        menuName,
+                        selectedImageUri.toString(),
+                        menuDescription,
+                        menuPrice,
+                        RestaurantsID
                     )
                 },
                 modifier = Modifier

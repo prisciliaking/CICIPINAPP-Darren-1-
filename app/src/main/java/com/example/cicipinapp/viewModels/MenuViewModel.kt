@@ -67,7 +67,7 @@ class MenuViewModel(
         private set
     var menuPrice by mutableStateOf("")
         private set
-    var RestaurantsID = MutableStateFlow(3)
+    var RestaurantsID = MutableStateFlow(6)
         private set
     var imageUrl by mutableStateOf("")
 
@@ -104,7 +104,7 @@ class MenuViewModel(
                         if (response.isSuccessful) {
                             Log.d("json", "JSON RESPONSE: ${response.body()!!.data}")
 
-                            navController.navigate(Screen.AddMenuList.route) {
+                            navController.navigate(Screen.Setting.route) {
                                 popUpTo(PagesEnum.MenuList.name) {
                                     inclusive = true
                                 }
@@ -154,39 +154,39 @@ class MenuViewModel(
         })
     }
 
-    fun fetchMenuById(token: String, id: Int) {
-        Log.d("Menu View Model", "Fetch menu by id : $id")
-        // Set the UI state to Loading before making the network call
-        _menuDataStatus.value = MenuDataStatusUIState.Loading
-
-        menuRepository.getMenuById(token, id).enqueue(object : Callback<GetMenuResponse> {
-
-            override fun onResponse(call: Call<GetMenuResponse>, response: Response<GetMenuResponse>) {
-                if (response.isSuccessful) {
-                    val menu = response.body()?.data
-                    if (menu != null) {
-                        // Wrap the single MenuModel in a list and update UI state to Success
-                        _menuDataStatus.value = MenuDataStatusUIState.Success(listOf(menu))
-                    } else {
-                        // If menu is null, update UI state to Empty
-                        _menuDataStatus.value = MenuDataStatusUIState.Empty
-                    }
-                } else {
-                    // If response is not successful, update UI state to Error with message
-                    _menuDataStatus.value = MenuDataStatusUIState.Error(
-                        "Failed to fetch menu: ${response.message()}"
-                    )
-                }
-            }
-
-            override fun onFailure(call: Call<GetMenuResponse>, t: Throwable) {
-                // If the network call fails, update UI state to Error with throwable message
-                _menuDataStatus.value = MenuDataStatusUIState.Error(
-                    "Error: ${t.message}"
-                )
-            }
-        })
-    }
-
+//    fun fetchMenuById(id: Int) {
+//        Log.d("Menu View Model", "Fetch menu by id : $id")
+//        // Set the UI state to Loading before making the network call
+//        _menuDataStatus.value = MenuDataStatusUIState.Loading
+//
+//        menuRepository.getMenuById(id).enqueue(object : Callback<GetMenuResponse> {
+//
+//            override fun onResponse(call: Call<GetMenuResponse>, response: Response<GetMenuResponse>) {
+//                if (response.isSuccessful) {
+//                    val menu = response.body()?.data
+//                    if (menu != null) {
+//                        // Wrap the single MenuModel in a list and update UI state to Success
+//                        _menuDataStatus.value = MenuDataStatusUIState.Success(listOf(menu))
+//                    } else {
+//                        // If menu is null, update UI state to Empty
+//                        _menuDataStatus.value = MenuDataStatusUIState.Empty
+//                    }
+//                } else {
+//                    // If response is not successful, update UI state to Error with message
+//                    _menuDataStatus.value = MenuDataStatusUIState.Error(
+//                        "Failed to fetch menu: ${response.message()}"
+//                    )
+//                }
+//            }
+//
+//            override fun onFailure(call: Call<GetMenuResponse>, t: Throwable) {
+//                // If the network call fails, update UI state to Error with throwable message
+//                _menuDataStatus.value = MenuDataStatusUIState.Error(
+//                    "Error: ${t.message}"
+//                )
+//            }
+//        })
+//    }
+//
 
 }

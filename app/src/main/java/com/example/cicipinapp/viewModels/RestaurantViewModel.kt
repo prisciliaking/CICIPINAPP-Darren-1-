@@ -94,6 +94,25 @@ class RestaurantViewModel(
     private val _restaurantDetail = MutableStateFlow<GetRestaurantResponse?>(null)
     val restaurantDetail: StateFlow<GetRestaurantResponse?> = _restaurantDetail
 
+//    fun updateNameInput(input: String) {
+//        nameInput = input
+//    }
+//
+//    fun updateAddressInput(input: String) {
+//        addressInput = input
+//    }
+//
+//    fun updateLongtitudeInput(input: String) {
+//        longtitudeInput = input
+//    }
+//
+//    fun updateLatitudeInput(input: String) {
+//        latitudeInput = input
+//    }
+//
+//    fun updateDescriptionInput(input: String) {
+//        descriptionInput = input
+//    }
 
     private val _errorMessage = MutableLiveData<String>()
     val errorMessage: LiveData<String> = _errorMessage
@@ -128,8 +147,8 @@ class RestaurantViewModel(
                         if (res.isSuccessful) {
                             Log.d("json", "JSON RESPONSE: ${res.body()!!.data}")
 
-                            navController.navigate(Screen.AddMenuList.route) {
-                                popUpTo(PagesEnum.MenuList.name) {
+                            navController.navigate(PagesEnum.Home.name) {
+                                popUpTo(PagesEnum.AddRestaurant.name) {
                                     inclusive = true
                                 }
                             }
@@ -217,6 +236,27 @@ class RestaurantViewModel(
         })
     }
 
+//
+//    fun fetchRestaurantById(restaurantId: Int) {
+//        viewModelScope.launch {
+//            try {
+//                // Make API call to fetch restaurant by ID
+//                val response = restaurantRepository.getRestaurantById(restaurantId).execute()
+//
+//                if (response.isSuccessful) {
+//                    // Successfully fetched the restaurant details
+//                    _restaurantDetail.value = response.body()
+//                    Log.d("API_SUCCESS", "Restaurant: ${response.body()}")
+//                } else {
+//                    // Handle error
+//                    Log.e("API_ERROR", "Error fetching restaurant details: ${response.errorBody()?.string()}")
+//                }
+//            } catch (e: Exception) {
+//                // Handle failure or network errors
+//                Log.e("API_FAILURE", "Failed to fetch restaurant details: ${e.message}")
+//            }
+//        }
+//    }
 
 
 
